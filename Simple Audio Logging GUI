@@ -1,0 +1,184 @@
+	local Converted = {
+		["_Audio Log GUI"] = Instance.new("ScreenGui");
+		["_Main"] = Instance.new("Frame");
+		["_Drag"] = Instance.new("LocalScript");
+		["_UICorner"] = Instance.new("UICorner");
+		["_Username"] = Instance.new("TextBox");
+		["_Log"] = Instance.new("TextButton");
+		["_UICorner1"] = Instance.new("UICorner");
+		["_LocalScript"] = Instance.new("LocalScript");
+	}
+
+	Converted["_Audio Log GUI"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	Converted["_Audio Log GUI"].Name = "Audio Log GUI"
+	Converted["_Audio Log GUI"].Parent = game:GetService("CoreGui")
+
+	Converted["_Main"].BackgroundColor3 = Color3.fromRGB(65.0000037252903, 70.00000342726707, 75.00000312924385)
+	Converted["_Main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Converted["_Main"].BorderSizePixel = 0
+	Converted["_Main"].Position = UDim2.new(0.0383141749, 0, 0.538911879, 0)
+	Converted["_Main"].Size = UDim2.new(0, 250, 0, 150)
+	Converted["_Main"].Name = "Main"
+	Converted["_Main"].Parent = Converted["_Audio Log GUI"]
+
+	Converted["_UICorner"].Parent = Converted["_Main"]
+
+	Converted["_Username"].Font = Enum.Font.FredokaOne
+	Converted["_Username"].PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
+	Converted["_Username"].PlaceholderText = "Enter Username"
+	Converted["_Username"].Text = ""
+	Converted["_Username"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	Converted["_Username"].TextScaled = true
+	Converted["_Username"].TextSize = 14
+	Converted["_Username"].TextWrapped = true
+	Converted["_Username"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Converted["_Username"].BackgroundTransparency = 1
+	Converted["_Username"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Converted["_Username"].BorderSizePixel = 0
+	Converted["_Username"].Size = UDim2.new(0, 250, 0, 50)
+	Converted["_Username"].Name = "Username"
+	Converted["_Username"].Parent = Converted["_Main"]
+
+	Converted["_Log"].Font = Enum.Font.FredokaOne
+	Converted["_Log"].Text = "Log"
+	Converted["_Log"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	Converted["_Log"].TextScaled = true
+	Converted["_Log"].TextSize = 14
+	Converted["_Log"].TextWrapped = true
+	Converted["_Log"].BackgroundColor3 = Color3.fromRGB(150.0000062584877, 0, 0)
+	Converted["_Log"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Converted["_Log"].BorderSizePixel = 0
+	Converted["_Log"].Position = UDim2.new(0.0399999991, 0, 0.400000006, 0)
+	Converted["_Log"].Size = UDim2.new(0, 230, 0, 50)
+	Converted["_Log"].Name = "Log"
+	Converted["_Log"].Parent = Converted["_Main"]
+
+	Converted["_UICorner1"].Parent = Converted["_Log"]
+	
+	local fake_module_scripts = {}
+
+	local function TXAW_fake_script()
+		local script = Instance.new("LocalScript")
+		script.Name = "Drag"
+		script.Parent = Converted["_Main"]
+		local req = require
+		local require = function(obj)
+			local fake = fake_module_scripts[obj]
+			if fake then
+				return fake()
+			end
+			return req(obj)
+		end
+
+		local dragToggle = nil
+		local dragStart = nil
+		local startPos = nil
+
+		local function updateInput(input)
+			local delta = input.Position - dragStart
+			local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			game:GetService('TweenService'):Create(script.Parent, TweenInfo.new(0.2), {Position = position}):Play()
+		end
+
+		script.Parent.InputBegan:Connect(function(input)
+			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+				dragToggle = true
+				dragStart = input.Position
+				startPos = script.Parent.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragToggle = false
+					end
+				end)
+			end
+		end)
+
+		game:GetService("UserInputService").InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+				if dragToggle then
+					updateInput(input)
+				end
+			end
+		end)
+
+	end
+	local function TWCVT_fake_script()
+		local script = Instance.new("LocalScript")
+		script.Name = "LocalScript"
+		script.Parent = Converted["_Log"]
+		local req = require
+		local require = function(obj)
+			local fake = fake_module_scripts[obj]
+			if fake then
+				return fake()
+			end
+			return req(obj)
+		end
+
+		local function tableToString(tbl, indent)
+			if type(tbl) == "table" then
+				local result = "{\n"
+				local nextIndent = (indent or 0) + 1
+
+				for key, value in pairs(tbl) do
+					result = result .. string.rep("    ", nextIndent)
+					if type(key) == "number" then
+						result = result .. "[" .. key .. "] = "
+					else
+						result = result .. key .. " = "
+					end
+
+					result = result .. tableToString(value, nextIndent) .. ",\n"
+				end
+
+				result = result .. string.rep("    ", (indent or 0)) .. "}"
+				return result
+			else
+				return tostring(tbl)
+			end
+		end
+
+		local function RemoveSpaces(String)
+			return String:gsub("%s+", "") or String
+		end
+
+		local function FindPlayer(String)
+			String = RemoveSpaces(String)
+			for _, _Player in pairs(game:GetService("Players"):GetPlayers()) do
+				if _Player.Name:lower():match('^'.. String:lower()) then
+					return _Player
+				end
+			end
+			return nil
+		end
+
+		script.Parent.MouseButton1Click:Connect(function()
+			local Audios = {}
+
+			local Target = FindPlayer(script.Parent.Parent.Username.Text)
+
+			if Target and Target.Character then
+				for i,v in pairs(Target.Character:GetDescendants()) do
+					if v.ClassName == "Tool" then
+						for i,q in pairs(v:GetDescendants()) do
+							if q.ClassName == "Sound" then
+								table.insert(Audios, q.SoundId)
+							end
+						end
+					end
+				end
+			end
+
+			local audioString = tableToString(Audios)
+
+			setclipboard(audioString)
+
+			script.Parent.Text = "Logged audio(s) copied to clipboard!"
+			wait(3)
+			script.Parent.Text = "Log"
+		end)
+	end
+
+	coroutine.wrap(TXAW_fake_script)()
+	coroutine.wrap(TWCVT_fake_script)()
